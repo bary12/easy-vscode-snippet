@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Easy VSCode Snippet</title>
+    <link rel="stylesheet" href="https://unpkg.com/codemirror@5.35.0/lib/codemirror.css">
+    <link rel="stylesheet" href="https://unpkg.com/codemirror@5.35.0/theme/base16-dark.css">
+    <style>
+        body, html {
+            height: 95%;
+            background-color: rgb(212, 212, 212);
+        }
+        #app {
+            text-align: center;
+            width: 100%;
+            height: 100%;
+        }
+        .CodeMirror, #indent {
+            text-align: left;
+        }
+        #input {
+            margin-bottom: 3px;
+            margin-top: 3px;
+        }
+        #output {
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <span id="indent">
+            tab size: <input type="number" v-model="indentnum"> spaces
+        </span>
+        <codemirror id="input" v-model="input" :options="cmOptions"></codemirror>
+        <codemirror id="output" v-model="output" :options="cmOptions"></codemirror>
+    </div>
+    <script src="https://unpkg.com/codemirror@5.36.0/lib/codemirror.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js"></script>
+    <script src="https://unpkg.com/vue-codemirror@4.0.4/dist/vue-codemirror.js"></script>
+    <script>
+        Vue.use(window.VueCodemirror)
+        new Vue({
+            el: '#app',
+            data: {
+                input: '',
+                output: JSON.stringify({
+                    prefix: '',
+                    body: [],
+                    description: '',
+                }, null, 4),
+                indentnum: 4,
+                cmOptions: {
+                    indent: 4,
+                    theme: 'base16-dark',
+                    mode: 'text/javascript',
+                    lineNumbers: true,
+                    line: true,
+                }
+            },
+            mounted() {
+                this.input = 'Your snippet goes here...';
+            },
+            computed: {
+                indent() {
+                    return ' '.repeat(this.indentnum);
+                }  
+            },
+            methods: {},
+            watch: {
+                input() {
+                    let oldJSON = JSON.parse(this.output);
+                    oldJSON.body = this.input.replace(new RegExp(this.indent, 'g'), '\t').split('\n');
+                    this.output = JSON.stringify(oldJSON, null, 4)
+                },
+                output() {
+                    let json = JSON.parse(this.output);
+                    this.input = json.body.join('\n').replace(/\t/g, this.indent);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
